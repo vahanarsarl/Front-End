@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Frontend</string>
+	<string>Vahanar Front</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>frontend</string>
+	<string>vahanar_front</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -45,5 +45,22 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- Ajout des permissions pour la caméra -->
+	<key>NSCameraUsageDescription</key>
+	<string>We need access to your camera to scan your driver license.</string>
+	<!-- Ajout des permissions pour la bibliothèque de photos -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photo library to save images.</string>
+	<!-- Ajout des permissions pour la localisation (GPS) -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>We need your location to show nearby agencies.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>We need your location to show nearby agencies even when the app is in the background.</string>
+	<!-- Ajout des permissions pour les notifications push -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
 </dict>
 </plist>

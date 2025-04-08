@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:vahanar_front/providers/auth_provider.dart';
-import 'package:vahanar_front/services/user_service.dart';
 import 'package:vahanar_front/widgets/bottom_nav_bar.dart';
 import 'package:vahanar_front/screens/profile/edit_profile_screen.dart';
 import 'package:vahanar_front/screens/profile/driver_license_camera_screen.dart';
