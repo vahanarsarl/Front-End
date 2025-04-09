@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart'; // Ajout de flutter_screenutil
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:location/location.dart' as loc;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:provider/provider.dart';
 import 'package:vahanar_front/providers/auth_provider.dart';
 import 'package:vahanar_front/screens/auth/greeting_screen.dart';
+import 'package:flutter/services.dart'; // Ajout pour SystemChrome
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -22,7 +23,22 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
+    // Définir la couleur de la barre de statut pour correspondre à l'arrière-plan
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Color(0xFF004852), // Couleur de la barre de statut
+      statusBarIconBrightness: Brightness.light, // Icônes blanches pour contraste
+    ));
     _initializeAndNavigate();
+  }
+
+  @override
+  void dispose() {
+    // Restaurer la barre de statut par défaut lors de la sortie de l'écran
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+    ));
+    super.dispose();
   }
 
   Future<void> _initializeAndNavigate() async {
@@ -148,8 +164,8 @@ class _SplashScreenState extends State<SplashScreen> {
       body: Center(
         child: Image.asset(
           'assets/images/vahanar1.png',
-          width: 500.w, // Largeur adaptative
-          height: 500.h, // Hauteur adaptative
+          width: 500.w,
+          height: 500.h,
         ),
       ),
     );
