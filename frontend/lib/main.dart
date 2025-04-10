@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart'; // Ajout de l'importation de flutter_screenutil
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 
 // Theme import
@@ -28,17 +28,17 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ProductProvider()),
         ChangeNotifierProvider(create: (_) => BookingProvider()),
       ],
-      child: ScreenUtilInit( // Ajout de ScreenUtilInit
-        designSize: const Size(375, 812), // Taille de conception de référence (iPhone 14)
-        minTextAdapt: true, // Permet au texte de s'adapter automatiquement
-        splitScreenMode: true, // Supporte les écrans partagés (par exemple, tablettes)
+      child: ScreenUtilInit(
+        designSize: const Size(375, 812),
+        minTextAdapt: true,
+        splitScreenMode: true,
         builder: (context, child) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'VAHANAR',
             theme: AppTheme.lightTheme,
-            initialRoute: '/', // Route initiale
-            onGenerateRoute: AppRouter.generateRoute, // Utilise le router
+            initialRoute: '/',
+            onGenerateRoute: AppRouter.generateRoute,
           );
         },
       ),

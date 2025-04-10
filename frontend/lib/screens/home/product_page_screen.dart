@@ -1,9 +1,13 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart'; // Pour utiliser Poppins
-import 'package:vahanar_front/screens/home/conditions_popup.dart'; // Importer le widget ConditionsPopup
+import 'package:google_fonts/google_fonts.dart';
+import 'package:vahanar_front/screens/home/conditions_popup.dart';
+import 'package:flutter/services.dart'; // Pour SystemChrome
+import 'package:screenshot/screenshot.dart'; // Pour capturer l'écran
+import 'package:share_plus/share_plus.dart'; // Pour partager
+import 'package:path_provider/path_provider.dart'; // Pour obtenir le chemin temporaire
 
-// Définition de la classe Vehicle pour représenter une voiture
 class Vehicle {
   final String category;
   final String name;
@@ -16,8 +20,8 @@ class Vehicle {
   final String estimatedTotal;
   final List<String> features;
   final String minDriverAge;
-  final String subtitle; // Sous-titre unique
-  final String description; // Description longue
+  final String subtitle;
+  final String description;
 
   Vehicle({
     required this.category,
@@ -71,36 +75,50 @@ class ProductPageScreen extends StatefulWidget {
 }
 
 class _ProductPageScreenState extends State<ProductPageScreen> with SingleTickerProviderStateMixin {
-  bool _isExpanded = false; // État pour gérer l'affichage de la description complète
+  bool _isExpanded = false;
   late AnimationController _animationController;
   late Animation<Offset> _slideAnimation;
+  final ScreenshotController _screenshotController = ScreenshotController(); // Contrôleur pour la capture d'écran
 
   @override
   void initState() {
     super.initState();
-    // Initialisation de l'animation pour la pop-up de partage
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
     _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 1), // Commence en bas
-      end: const Offset(0, 0), // Monte jusqu'à la position finale
+      begin: const Offset(0, 1),
+      end: const Offset(0, 0),
     ).animate(CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeInOut,
+    ));
+
+    // Définir la couleur de la barre de statut et de la barre de navigation
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: const Color(0xFF004852), // Couleur de l'en-tête
+      statusBarIconBrightness: Brightness.light, // Icônes blanches pour contraste
+      systemNavigationBarColor: Colors.grey.shade200, // Couleur de l'arrière-plan du Scaffold
+      systemNavigationBarIconBrightness: Brightness.dark, // Icônes noires pour contraste
     ));
   }
 
   @override
   void dispose() {
     _animationController.dispose();
+
+    // Restaurer les paramètres par défaut lors de la sortie de l'écran
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ));
     super.dispose();
   }
 
-  // Liste statique des 10 voitures avec sous-titres et descriptions longues
   static final List<Vehicle> allVehicles = [
-    // SUV (5 voitures)
     Vehicle(
       category: 'SUV',
       name: 'Toyota RAV4',
@@ -181,7 +199,6 @@ class _ProductPageScreenState extends State<ProductPageScreen> with SingleTicker
       description:
           'Le Subaru Forester est un SUV robuste conçu pour les amateurs de plein air, avec une excellente capacité tout-terrain. Il dispose d’une transmission automatique, d’une climatisation et d’un toit ouvrant pour plus de plaisir. Idéal pour les escapades en nature, ce véhicule offre une conduite stable et sécurisée. Parfait pour les aventures en plein air.',
     ),
-    // Hatchback (3 voitures)
     Vehicle(
       category: 'Hatchback',
       name: 'Volkswagen Golf',
@@ -230,7 +247,6 @@ class _ProductPageScreenState extends State<ProductPageScreen> with SingleTicker
       description:
           'La Ford Focus est une hatchback économique, parfaite pour les petits budgets et les trajets en ville. Elle est équipée d’une transmission manuelle et d’une climatisation pour un confort de base. Ce véhicule offre une conduite simple et efficace, idéale pour les déplacements quotidiens. Louez-la pour une solution pratique et abordable.',
     ),
-    // Crossover (2 voitures)
     Vehicle(
       category: 'Crossover',
       name: 'Nissan Rogue',
@@ -265,7 +281,6 @@ class _ProductPageScreenState extends State<ProductPageScreen> with SingleTicker
     ),
   ];
 
-  // Fonction pour trouver la voiture dans la liste et récupérer son sous-titre et sa description
   Vehicle? _findVehicle() {
     return allVehicles.firstWhere(
       (vehicle) => vehicle.name == widget.name && vehicle.category == widget.category,
@@ -287,21 +302,53 @@ class _ProductPageScreenState extends State<ProductPageScreen> with SingleTicker
     );
   }
 
-  // Fonction pour afficher la pop-up de conditions
   void _showConditionsPopup(BuildContext context) {
     showDialog(
       context: context,
-      barrierDismissible: true, // Permet de fermer la pop-up en cliquant à l'extérieur
-      barrierColor: Colors.black.withOpacity(0.3), // Fond semi-transparent
+      barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.3),
       builder: (BuildContext context) {
-        return const ConditionsPopup(); // Utiliser le widget ConditionsPopup
+        return const ConditionsPopup();
       },
     );
   }
 
-  // Fonction pour afficher la pop-up de partage
+  // Fonction pour capturer l'écran et partager
+  Future<void> _captureAndShare() async {
+    try {
+      // Capturer l'écran
+      final image = await _screenshotController.capture();
+      if (image == null) return;
+
+      // Obtenir le répertoire temporaire
+      final directory = await getTemporaryDirectory();
+      final imagePath = '${directory.path}/screenshot_${DateTime.now().millisecondsSinceEpoch}.png';
+      final imageFile = File(imagePath);
+
+      // Enregistrer l'image temporairement
+      await imageFile.writeAsBytes(image);
+
+      // Partager l'image avec un message
+      await Share.shareXFiles(
+        [XFile(imagePath)],
+        text: 'Check out this vehicle: ${widget.name} (${widget.category})!\nPrice: ${widget.pricePerDay}\nTotal: ${widget.estimatedTotal}',
+      );
+
+      // Nettoyer le fichier temporaire (optionnel)
+      await imageFile.delete();
+    } catch (e) {
+      // Afficher une erreur si quelque chose échoue
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to share: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   void _showSharePopup(BuildContext context) {
-    _animationController.forward(); // Lancer l'animation
+    _animationController.forward();
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -310,7 +357,7 @@ class _ProductPageScreenState extends State<ProductPageScreen> with SingleTicker
         return SlideTransition(
           position: _slideAnimation,
           child: Container(
-            height: MediaQuery.of(context).size.height * 0.5, // Moitié de la page
+            height: MediaQuery.of(context).size.height * 0.5,
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
@@ -353,44 +400,32 @@ class _ProductPageScreenState extends State<ProductPageScreen> with SingleTicker
                       _buildShareOption(
                         iconPath: 'assets/icons/wath.png',
                         label: 'WhatsApp',
-                        onTap: () {
-                          // Logique pour partager via WhatsApp
-                        },
+                        onTap: _captureAndShare, // Utilise la fonction de capture et partage
                       ),
                       _buildShareOption(
                         iconPath: 'assets/icons/facebook.png',
                         label: 'Facebook',
-                        onTap: () {
-                          // Logique pour partager via Facebook
-                        },
+                        onTap: _captureAndShare,
                       ),
                       _buildShareOption(
                         iconPath: 'assets/icons/insta.png',
                         label: 'Instagram',
-                        onTap: () {
-                          // Logique pour partager via Instagram
-                        },
+                        onTap: _captureAndShare,
                       ),
                       _buildShareOption(
                         iconPath: 'assets/icons/mes.png',
                         label: 'Messenger',
-                        onTap: () {
-                          // Logique pour partager via Messenger
-                        },
+                        onTap: _captureAndShare,
                       ),
                       _buildShareOption(
                         iconPath: 'assets/icons/gmail.png',
                         label: 'Email',
-                        onTap: () {
-                          // Logique pour partager via Email
-                        },
+                        onTap: _captureAndShare,
                       ),
                       _buildShareOption(
                         iconPath: 'assets/icons/sms.png',
                         label: 'SMS',
-                        onTap: () {
-                          // Logique pour partager via SMS
-                        },
+                        onTap: _captureAndShare,
                       ),
                     ],
                   ),
@@ -401,11 +436,10 @@ class _ProductPageScreenState extends State<ProductPageScreen> with SingleTicker
         );
       },
     ).whenComplete(() {
-      _animationController.reverse(); // Revenir à l'état initial
+      _animationController.reverse();
     });
   }
 
-  // Widget pour chaque option de partage (avec image au lieu d'icône)
   Widget _buildShareOption({
     required String iconPath,
     required String label,
@@ -445,41 +479,42 @@ class _ProductPageScreenState extends State<ProductPageScreen> with SingleTicker
 
   @override
   Widget build(BuildContext context) {
-    // Récupérer la voiture pour obtenir le sous-titre et la description
     final vehicle = _findVehicle();
 
-    return Scaffold(
-      backgroundColor: Colors.grey.shade200, // Fond gris pour toute la page
-      body: SafeArea(
-        child: Column(
-          children: [
-            // En-tête avec le rectangle bleu
-            _buildHeader(context),
-            // Contenu principal (image, détails, etc.)
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Image de la voiture avec fond gris
-                    _buildCarImage(),
-                    // Détails de la voiture (nom, sous-titre, caractéristiques, description, prix)
-                    _buildCarDetails(context, vehicle!.subtitle, vehicle.description),
-                  ],
+    return Screenshot(
+      controller: _screenshotController, // Envelopper le Scaffold avec Screenshot
+      child: Scaffold(
+        backgroundColor: Colors.grey.shade200,
+        body: SafeArea(
+          top: false, // Désactiver SafeArea en haut
+          bottom: false, // Désactiver SafeArea en bas
+          child: Column(
+            children: [
+              _buildHeader(context),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildCarImage(),
+                      _buildCarDetails(context, vehicle!.subtitle, vehicle.description),
+                      SizedBox(height: MediaQuery.of(context).padding.bottom), // Ajouter padding pour la barre de navigation
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  // Construit l'en-tête avec le rectangle bleu
   Widget _buildHeader(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h)
+          .add(EdgeInsets.only(top: MediaQuery.of(context).padding.top)), // Ajouter padding pour la barre de statut
       decoration: const BoxDecoration(
         color: Color(0xFF004852),
         borderRadius: BorderRadius.zero,
@@ -493,13 +528,13 @@ class _ProductPageScreenState extends State<ProductPageScreen> with SingleTicker
               IconButton(
                 icon: Icon(Icons.arrow_back, color: Colors.white, size: 24.w),
                 onPressed: () {
-                  Navigator.pop(context); // Retour à SearchResultScreen
+                  Navigator.pop(context);
                 },
               ),
               IconButton(
                 icon: Icon(Icons.share, color: Colors.white, size: 24.w),
                 onPressed: () {
-                  _showSharePopup(context); // Afficher la pop-up de partage
+                  _showSharePopup(context);
                 },
               ),
             ],
@@ -513,9 +548,9 @@ class _ProductPageScreenState extends State<ProductPageScreen> with SingleTicker
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 24.sp,
-                  decoration: TextDecoration.underline, // Soulignement avec TextDecoration
-                  decorationColor: Colors.white, // Couleur de la ligne (blanche)
-                  decorationThickness: 2, // Épaisseur de la ligne
+                  decoration: TextDecoration.underline,
+                  decorationColor: Colors.white,
+                  decorationThickness: 2,
                 ),
               ),
             ],
@@ -526,10 +561,9 @@ class _ProductPageScreenState extends State<ProductPageScreen> with SingleTicker
     );
   }
 
-  // Construit l'image de la voiture avec un fond gris
   Widget _buildCarImage() {
     return Container(
-      color: Colors.grey.shade300, // Fond gris uniquement pour l'image
+      color: Colors.grey.shade300,
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: 20.h),
       child: Image.asset(
@@ -544,15 +578,13 @@ class _ProductPageScreenState extends State<ProductPageScreen> with SingleTicker
     );
   }
 
-  // Construit les détails de la voiture (nom, sous-titre, caractéristiques, description, prix)
   Widget _buildCarDetails(BuildContext context, String subtitle, String description) {
     return Container(
-      color: Colors.grey.shade200, // Fond gris pour le reste de la page
+      color: Colors.grey.shade200,
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Nom et sous-titre de la voiture
           Text(
             widget.name,
             style: GoogleFonts.poppins(
@@ -570,17 +602,15 @@ class _ProductPageScreenState extends State<ProductPageScreen> with SingleTicker
             ),
           ),
           SizedBox(height: 20.h),
-          // Caractéristiques (transmission, sièges, portes, bagages)
-          _buildFeatureRow('assets/icons/de1.png', '${widget.transmission} Transmission', ''), // Transmission combinée dans le label
+          _buildFeatureRow('assets/icons/de1.png', '${widget.transmission} Transmission', ''),
           _buildDivider(),
           _buildFeatureRow('assets/icons/de2.png', 'Seats', widget.passengers.toString()),
           _buildDivider(),
           _buildFeatureRow('assets/icons/de3.png', 'Doors', widget.doors.toString()),
           _buildDivider(),
           _buildFeatureRow('assets/icons/de4.png', 'Luggage', widget.luggage.toString()),
-          _buildDivider(), // Ligne supplémentaire après la dernière icône
+          _buildDivider(),
           SizedBox(height: 20.h),
-          // Description
           Text(
             'Car description',
             style: GoogleFonts.poppins(
@@ -590,7 +620,6 @@ class _ProductPageScreenState extends State<ProductPageScreen> with SingleTicker
             ),
           ),
           SizedBox(height: 8.h),
-          // Affichage de la description avec "Read more..." après 2 lignes
           description.isEmpty
               ? Text(
                   'Aucune description disponible.',
@@ -623,7 +652,7 @@ class _ProductPageScreenState extends State<ProductPageScreen> with SingleTicker
                       GestureDetector(
                         onTap: () {
                           setState(() {
-                            _isExpanded = true; // Affiche la description complète
+                            _isExpanded = true;
                           });
                         },
                         child: Text(
@@ -639,7 +668,7 @@ class _ProductPageScreenState extends State<ProductPageScreen> with SingleTicker
                       GestureDetector(
                         onTap: () {
                           setState(() {
-                            _isExpanded = false; // Masque la description complète
+                            _isExpanded = false;
                           });
                         },
                         child: Text(
@@ -654,7 +683,6 @@ class _ProductPageScreenState extends State<ProductPageScreen> with SingleTicker
                   ],
                 ),
           SizedBox(height: 20.h),
-          // Prix total
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -682,12 +710,11 @@ class _ProductPageScreenState extends State<ProductPageScreen> with SingleTicker
             ],
           ),
           SizedBox(height: 20.h),
-          // Bouton "Reserve" qui ouvre la pop-up
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () {
-                _showConditionsPopup(context); // Afficher la pop-up
+                _showConditionsPopup(context);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF004852),
@@ -711,7 +738,6 @@ class _ProductPageScreenState extends State<ProductPageScreen> with SingleTicker
     );
   }
 
-  // Construit une ligne pour une caractéristique (icône + label + valeur)
   Widget _buildFeatureRow(String iconPath, String label, String value) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8.h),
@@ -736,7 +762,7 @@ class _ProductPageScreenState extends State<ProductPageScreen> with SingleTicker
               ),
             ],
           ),
-          if (value.isNotEmpty) // Affiche la valeur uniquement si elle n'est pas vide
+          if (value.isNotEmpty)
             Text(
               value,
               style: GoogleFonts.poppins(
@@ -749,7 +775,6 @@ class _ProductPageScreenState extends State<ProductPageScreen> with SingleTicker
     );
   }
 
-  // Construit un séparateur
   Widget _buildDivider() {
     return Divider(
       color: Colors.grey.shade300,

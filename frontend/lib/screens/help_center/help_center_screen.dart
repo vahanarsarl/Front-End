@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart'; // Ajout de FlutterScreenUtil
-import 'package:google_fonts/google_fonts.dart'; // Ajout de GoogleFonts pour Poppins
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:vahanar_front/widgets/bottom_nav_bar.dart';
-import 'package:url_launcher/url_launcher.dart'; // Ajout de url_launcher pour les liens
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/services.dart'; // Ajout pour SystemChrome
 
 class HelpCenterScreen extends StatefulWidget {
   const HelpCenterScreen({super.key});
@@ -15,15 +16,45 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
   bool _showFAQ = true;
   int? _expandedIndex;
 
-  // Fonction pour lancer les URLs
+  @override
+  void initState() {
+    super.initState();
+    // Définir la couleur de la barre de statut et de la barre de navigation
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        statusBarColor: const Color(0xFF2A4D50), // Couleur de l'en-tête
+        statusBarIconBrightness:
+            Brightness.light, // Icônes blanches pour contraste
+        systemNavigationBarColor:
+            Colors.white, // Couleur de l'arrière-plan du Scaffold
+        systemNavigationBarIconBrightness:
+            Brightness.dark, // Icônes noires pour contraste
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    // Restaurer les paramètres par défaut lors de la sortie de l'écran
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarIconBrightness: Brightness.dark,
+      ),
+    );
+    super.dispose();
+  }
+
   Future<void> _launchURL(String url) async {
     final Uri uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not launch $url')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Could not launch $url')));
     }
   }
 
@@ -32,11 +63,17 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
+        top: false, // Désactiver SafeArea en haut
+        bottom: false, // Désactiver SafeArea en bas
         child: Column(
           children: [
-            // Header personnalisé
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+              padding: EdgeInsets.symmetric(
+                horizontal: 16.w,
+                vertical: 16.h,
+              ).add(
+                EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+              ), // Ajouter padding pour la barre de statut
               color: const Color(0xFF2A4D50),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -44,7 +81,11 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                   Row(
                     children: [
                       IconButton(
-                        icon: Icon(Icons.arrow_back, color: Colors.white, size: 24.w),
+                        icon: Icon(
+                          Icons.arrow_back,
+                          color: Colors.white,
+                          size: 24.w,
+                        ),
                         onPressed: () {
                           Navigator.pop(context);
                         },
@@ -53,7 +94,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                   ),
                   Text(
                     'HELP CENTER',
-                    style: GoogleFonts.poppins( // Remplacement par Poppins
+                    style: GoogleFonts.poppins(
                       fontSize: 32.sp,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -64,7 +105,6 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                 ],
               ),
             ),
-            // Barre de recherche
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
               child: Container(
@@ -77,7 +117,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                 child: Row(
                   children: [
                     Image.asset(
-                      'assets/icons/sbl.png', // Remplacement de l'icône de recherche
+                      'assets/icons/sbl.png',
                       width: 24.w,
                       height: 24.h,
                     ),
@@ -95,7 +135,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                       ),
                     ),
                     Image.asset(
-                      'assets/icons/suiv.png', // Remplacement de l'icône de flèche
+                      'assets/icons/suiv.png',
                       width: 24.w,
                       height: 24.h,
                     ),
@@ -103,7 +143,6 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                 ),
               ),
             ),
-            // Boutons FAQ et Contact Us
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: Row(
@@ -117,7 +156,8 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                         });
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: _showFAQ ? const Color(0xFF2A4D50) : Colors.black,
+                        backgroundColor:
+                            _showFAQ ? const Color(0xFF2A4D50) : Colors.black,
                         padding: EdgeInsets.symmetric(vertical: 12.h),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.r),
@@ -143,7 +183,8 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                         });
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: !_showFAQ ? const Color(0xFF2A4D50) : Colors.black,
+                        backgroundColor:
+                            !_showFAQ ? const Color(0xFF2A4D50) : Colors.black,
                         padding: EdgeInsets.symmetric(vertical: 12.h),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.r),
@@ -163,7 +204,6 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
               ),
             ),
             SizedBox(height: 16.h),
-            // Contenu conditionnel : FAQ ou Contact Us
             Expanded(
               child: _showFAQ ? _buildFAQContent() : _buildContactUsContent(),
             ),
@@ -174,7 +214,6 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
     );
   }
 
-  // Contenu FAQ
   Widget _buildFAQContent() {
     return ListView.builder(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -184,10 +223,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
           decoration: BoxDecoration(
             color: Colors.grey[50],
             borderRadius: BorderRadius.circular(25.r),
-            border: Border.all(
-              color: Colors.grey.shade300,
-              width: 1.w,
-            ),
+            border: Border.all(color: Colors.grey.shade300, width: 1.w),
           ),
           margin: EdgeInsets.symmetric(vertical: 8.h),
           child: ExpansionTile(
@@ -231,27 +267,22 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
     );
   }
 
-  // Contenu Contact Us
   Widget _buildContactUsContent() {
     return ListView.builder(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
-      itemCount: 5, // 5 éléments : LinkedIn, Website, X (Twitter), Facebook, Instagram
+      itemCount: 5,
       itemBuilder: (context, index) {
         return _buildContactItem(index);
       },
     );
   }
 
-  // Méthode pour les éléments de Contact Us
   Widget _buildContactItem(int index) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.grey[50],
         borderRadius: BorderRadius.circular(25.r),
-        border: Border.all(
-          color: Colors.grey.shade300,
-          width: 1.w,
-        ),
+        border: Border.all(color: Colors.grey.shade300, width: 1.w),
       ),
       margin: EdgeInsets.symmetric(vertical: 8.h),
       child: ExpansionTile(
@@ -267,10 +298,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
         ),
         title: Text(
           _getContactTitle(index),
-          style: GoogleFonts.poppins(
-            fontSize: 16.sp,
-            color: Colors.black,
-          ),
+          style: GoogleFonts.poppins(fontSize: 16.sp, color: Colors.black),
         ),
         trailing: Icon(
           Icons.expand_more,
@@ -288,11 +316,19 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                 }
               },
               child: Text(
-                _getContactUrl(index).isNotEmpty ? 'Visit ${_getContactTitle(index)}' : 'Coming soon',
+                _getContactUrl(index).isNotEmpty
+                    ? 'Visit ${_getContactTitle(index)}'
+                    : 'Coming soon',
                 style: GoogleFonts.poppins(
                   fontSize: 14.sp,
-                  color: _getContactUrl(index).isNotEmpty ? Colors.blue : Colors.grey,
-                  decoration: _getContactUrl(index).isNotEmpty ? TextDecoration.underline : null,
+                  color:
+                      _getContactUrl(index).isNotEmpty
+                          ? Colors.blue
+                          : Colors.grey,
+                  decoration:
+                      _getContactUrl(index).isNotEmpty
+                          ? TextDecoration.underline
+                          : null,
                 ),
               ),
             ),
@@ -314,15 +350,15 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
   String _getContactIconName(int index) {
     switch (index) {
       case 0:
-        return 'eclipse1'; // LinkedIn
+        return 'eclipse1';
       case 1:
-        return 'eclipse2'; // Website
+        return 'eclipse2';
       case 2:
-        return 'eclipse3'; // X (Twitter)
+        return 'eclipse3';
       case 3:
-        return 'eclipse4'; // Facebook
+        return 'eclipse4';
       case 4:
-        return 'eclipse5'; // Instagram
+        return 'eclipse5';
       default:
         return 'error';
     }
@@ -348,15 +384,15 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
   String _getContactUrl(int index) {
     switch (index) {
       case 0:
-        return 'https://www.linkedin.com/company/vahanar/'; // LinkedIn
+        return 'https://www.linkedin.com/company/vahanar/';
       case 1:
-        return ''; // Website (vide pour l'instant)
+        return '';
       case 2:
-        return 'https://x.com/Vahanar_'; // X (Twitter)
+        return 'https://x.com/Vahanar_';
       case 3:
-        return 'https://web.facebook.com/people/Vahanar/61574664671787/?rdid=Owm8mwpughqdkltf&share_url=https%3A%2F%2Fweb.facebook.com%2Fshare%2F1X6WbDTKUb%2F%3F_rdc%3D1%26_rdr'; // Facebook
+        return 'fb://page/61574664671787'; // Lien profond pour Facebook
       case 4:
-        return 'https://www.instagram.com/vahanar_/'; // Instagram
+        return 'instagram://user?username=vahanar_'; // Lien profond pour Instagram
       default:
         return '';
     }

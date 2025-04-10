@@ -1,9 +1,40 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart'; // Ajout de flutter_screenutil
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:vahanar_front/widgets/custom_button.dart';
-class GreetingScreen extends StatelessWidget {
+import 'package:flutter/services.dart'; // Ajout pour SystemChrome
+
+class GreetingScreen extends StatefulWidget { // Changé en StatefulWidget
   const GreetingScreen({super.key});
+
+  @override
+  _GreetingScreenState createState() => _GreetingScreenState();
+}
+
+class _GreetingScreenState extends State<GreetingScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Définir la couleur de la barre de statut et de la barre de navigation
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent, // Rendre la barre de statut transparente
+      statusBarIconBrightness: Brightness.dark, // Icônes noires pour contraste avec l'image
+      systemNavigationBarColor: Colors.white, // Couleur de l'arrière-plan du Scaffold
+      systemNavigationBarIconBrightness: Brightness.dark, // Icônes noires pour contraste
+    ));
+  }
+
+  @override
+  void dispose() {
+    // Restaurer les paramètres par défaut lors de la sortie de l'écran
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ));
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,9 +63,11 @@ class GreetingScreen extends StatelessWidget {
                 ),
               ),
               SafeArea(
+                top: false, // Désactiver SafeArea en haut
+                bottom: false, // Désactiver SafeArea en bas
                 child: Column(
                   children: [
-                    SizedBox(height: 0.05.sh),
+                    SizedBox(height: 0.05.sh + MediaQuery.of(context).padding.top), // Ajouter padding pour la barre de statut
                     Text(
                       'VAHANAR',
                       style: GoogleFonts.poppins(
@@ -70,7 +103,7 @@ class GreetingScreen extends StatelessWidget {
                     ),
                     const Spacer(),
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 0.1.sw), // 10% de la largeur
+                      padding: EdgeInsets.symmetric(horizontal: 0.1.sw),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
@@ -111,7 +144,11 @@ class GreetingScreen extends StatelessWidget {
                             onPressed: () {
                               Navigator.pushNamed(context, '/home');
                             },
-                            color: Colors.transparent,
+                            color: Colors.white, // Changer le background en blanc
+                            borderSide: BorderSide(
+                              color: const Color(0xFF004852), // Bordure bleue du projet
+                              width: 2.w,
+                            ),
                             borderRadius: BorderRadius.circular(buttonCornerRadius.r),
                             textStyle: GoogleFonts.poppins(
                               fontWeight: FontWeight.w400,
@@ -126,7 +163,7 @@ class GreetingScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 16.h),
                     Padding(
-                      padding: EdgeInsets.only(bottom: 16.h),
+                      padding: EdgeInsets.only(bottom: 16.h + MediaQuery.of(context).padding.bottom), // Ajouter padding pour la barre de navigation
                       child: Column(
                         children: [
                           Text(

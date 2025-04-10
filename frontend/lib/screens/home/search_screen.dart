@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart'; // Ajout de flutter_screenutil
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:vahanar_front/constants.dart';
 import 'package:vahanar_front/widgets/bottom_nav_bar.dart';
 import 'package:vahanar_front/screens/home/search_result_screen.dart';
 import 'package:vahanar_front/widgets/custom_button.dart';
+import 'package:flutter/services.dart'; // Ajout pour SystemChrome
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -59,6 +60,14 @@ class _SearchScreenState extends State<SearchScreen> {
 
     _pickupLocationController.addListener(() => _filterLocations(_pickupLocationController.text, true));
     _dropoffLocationController.addListener(() => _filterLocations(_dropoffLocationController.text, false));
+
+    // Définir la couleur de la barre de statut et de la barre de navigation
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: const Color(0xFF004852), // Couleur de l'en-tête
+      statusBarIconBrightness: Brightness.light, // Icônes blanches pour contraste
+      systemNavigationBarColor: Colors.white, // Couleur de l'arrière-plan du Scaffold
+      systemNavigationBarIconBrightness: Brightness.dark, // Icônes noires pour contraste
+    ));
   }
 
   @override
@@ -68,6 +77,14 @@ class _SearchScreenState extends State<SearchScreen> {
     _pickupDateController.dispose();
     _dropoffDateController.dispose();
     _discountCodeController.dispose();
+
+    // Restaurer les paramètres par défaut lors de la sortie de l'écran
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ));
     super.dispose();
   }
 
@@ -160,11 +177,13 @@ class _SearchScreenState extends State<SearchScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
+        top: false, // Désactiver SafeArea en haut
+        bottom: false, // Désactiver SafeArea en bas
         child: Column(
           children: [
             Container(
               width: double.infinity,
-              padding: EdgeInsets.all(15.w),
+              padding: EdgeInsets.all(15.w).add(EdgeInsets.only(top: MediaQuery.of(context).padding.top)), // Ajouter padding pour la barre de statut
               color: const Color(0xFF004852),
               child: Row(
                 children: [
@@ -181,9 +200,9 @@ class _SearchScreenState extends State<SearchScreen> {
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                           fontSize: 32.sp,
-                          decoration: TextDecoration.underline, // Soulignement avec TextDecoration
-                          decorationColor: Colors.white, // Couleur de la ligne (blanche)
-                          decorationThickness: 2, // Épaisseur de la ligne
+                          decoration: TextDecoration.underline,
+                          decorationColor: Colors.white,
+                          decorationThickness: 2,
                         ),
                       ),
                     ],
@@ -342,7 +361,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         height: 40.h,
                         isLoading: false,
                       ),
-                      SizedBox(height: 20.h),
+                      SizedBox(height: 20.h + MediaQuery.of(context).padding.bottom), // Ajouter padding pour la barre de navigation
                     ],
                   ),
                 ),

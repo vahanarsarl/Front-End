@@ -1,22 +1,54 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart'; // Ajout de FlutterScreenUtil
-import 'package:google_fonts/google_fonts.dart'; // Ajout de GoogleFonts pour Poppins
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:vahanar_front/widgets/bottom_nav_bar.dart';
+import 'package:flutter/services.dart'; // Ajout pour SystemChrome
 
-class ReservationsHistoryScreen extends StatelessWidget {
+class ReservationsHistoryScreen extends StatefulWidget { // Changé en StatefulWidget
   const ReservationsHistoryScreen({super.key});
+
+  @override
+  _ReservationsHistoryScreenState createState() => _ReservationsHistoryScreenState();
+}
+
+class _ReservationsHistoryScreenState extends State<ReservationsHistoryScreen> { // Création de l'état
+  @override
+  void initState() {
+    super.initState();
+    // Définir la couleur de la barre de statut et de la barre de navigation
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: const Color(0xFF2A4D50), // Couleur de l'en-tête
+      statusBarIconBrightness: Brightness.light, // Icônes blanches pour contraste
+      systemNavigationBarColor: Colors.white, // Couleur de l'arrière-plan du Scaffold
+      systemNavigationBarIconBrightness: Brightness.dark, // Icônes noires pour contraste
+    ));
+  }
+
+  @override
+  void dispose() {
+    // Restaurer les paramètres par défaut lors de la sortie de l'écran
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ));
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
+        top: false, // Désactiver SafeArea en haut
+        bottom: false, // Désactiver SafeArea en bas
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header avec flèche de retour et titre
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h)
+                  .add(EdgeInsets.only(top: MediaQuery.of(context).padding.top)), // Ajouter padding pour la barre de statut
               color: const Color(0xFF2A4D50),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,7 +93,6 @@ class ReservationsHistoryScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Titre "Active Orders"
                       Text(
                         'Active Orders',
                         style: GoogleFonts.poppins(
@@ -71,7 +102,6 @@ class ReservationsHistoryScreen extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: 8.h),
-                      // Liste des commandes actives
                       _buildOrderList(context, [
                         {
                           'location': 'Mohamed V Intl Airport, casab...',
@@ -87,7 +117,6 @@ class ReservationsHistoryScreen extends StatelessWidget {
                         },
                       ]),
                       SizedBox(height: 16.h),
-                      // Titre "Past Orders"
                       Text(
                         'Past Orders',
                         style: GoogleFonts.poppins(
@@ -97,7 +126,6 @@ class ReservationsHistoryScreen extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: 8.h),
-                      // Liste des commandes passées
                       _buildOrderList(context, [
                         {
                           'location': 'Mohamed V Intl Airport, casab...',
@@ -148,7 +176,6 @@ class ReservationsHistoryScreen extends StatelessWidget {
     );
   }
 
-  // Méthode pour construire la liste des commandes
   Widget _buildOrderList(BuildContext context, List<Map<String, String>> orders) {
     return Column(
       children: orders.map((order) {

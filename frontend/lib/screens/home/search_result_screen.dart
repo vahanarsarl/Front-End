@@ -6,8 +6,8 @@ import 'package:vahanar_front/constants.dart';
 import 'package:vahanar_front/widgets/bottom_nav_bar.dart';
 import 'filter_screen.dart';
 import 'product_page_screen.dart';
+import 'package:flutter/services.dart'; // Ajout pour SystemChrome
 
-// Définition de la classe Vehicle pour représenter un véhicule
 class Vehicle {
   final String category;
   final String name;
@@ -36,7 +36,6 @@ class Vehicle {
   });
 }
 
-// Widget principal pour l'écran de résultats de recherche
 class SearchResultScreen extends StatefulWidget {
   final String pickupLocation;
   final String pickupDate;
@@ -54,7 +53,6 @@ class SearchResultScreen extends StatefulWidget {
 }
 
 class _SearchResultScreenState extends State<SearchResultScreen> with SingleTickerProviderStateMixin {
-  // Liste réduite à 10 véhicules de différents types
   List<Vehicle> allVehicles = [
     Vehicle(
       category: 'SUV',
@@ -138,7 +136,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> with SingleTick
       category: 'Pickup',
       name: 'Ford F-150',
       imageUrl: 'assets/images/touareg.png',
-      doors: 4 ,
+      doors: 4,
       passengers: 5,
       luggage: 3,
       transmission: 'Automatic',
@@ -188,20 +186,14 @@ class _SearchResultScreenState extends State<SearchResultScreen> with SingleTick
     ),
   ];
 
-  // Liste des véhicules filtrés
   List<Vehicle> filteredVehicles = [];
-
-  // Filtres par défaut
   String selectedSortBy = 'Featured';
   String selectedVehicleType = 'SUV';
   String selectedFeature = 'Automatic transmission';
   int selectedSeats = 4;
   String selectedDriverAge = '24';
-
-  // État pour gérer l'affichage de la liste de choix
   bool showSortOptions = false;
 
-  // Contrôleur pour l'animation
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -212,7 +204,6 @@ class _SearchResultScreenState extends State<SearchResultScreen> with SingleTick
     filteredVehicles = List.from(allVehicles);
     applyFilters();
 
-    // Initialisation de l'animation
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
@@ -223,15 +214,30 @@ class _SearchResultScreenState extends State<SearchResultScreen> with SingleTick
     _slideAnimation = Tween<Offset>(begin: const Offset(0, -0.2), end: const Offset(0, 0)).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
+
+    // Définir la couleur de la barre de statut et de la barre de navigation
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: const Color(0xFF004852), // Couleur de l'en-tête
+      statusBarIconBrightness: Brightness.light, // Icônes blanches pour contraste
+      systemNavigationBarColor: AppConstants.backgroundColor, // Couleur de l'arrière-plan du Scaffold
+      systemNavigationBarIconBrightness: Brightness.dark, // Icônes noires pour contraste
+    ));
   }
 
   @override
   void dispose() {
     _animationController.dispose();
+
+    // Restaurer les paramètres par défaut lors de la sortie de l'écran
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ));
     super.dispose();
   }
 
-  // Fonction pour calculer la durée entre deux dates
   int calculateDuration(String pickupDate, String dropoffDate) {
     try {
       final DateFormat formatter = DateFormat('MMM dd');
@@ -239,11 +245,10 @@ class _SearchResultScreenState extends State<SearchResultScreen> with SingleTick
       final DateTime dropoff = formatter.parse('$dropoffDate ${DateTime.now().year}');
       return dropoff.difference(pickup).inDays;
     } catch (e) {
-      return 2; // Valeur par défaut si le parsing échoue
+      return 2;
     }
   }
 
-  // Fonction pour appliquer les filtres et trier les véhicules
   void applyFilters() {
     setState(() {
       filteredVehicles = allVehicles.where((vehicle) {
@@ -296,6 +301,8 @@ class _SearchResultScreenState extends State<SearchResultScreen> with SingleTick
     return Scaffold(
       backgroundColor: AppConstants.backgroundColor,
       body: SafeArea(
+        top: false, // Désactiver SafeArea en haut
+        bottom: false, // Désactiver SafeArea en bas
         child: Column(
           children: [
             _buildHeader(durationDays),
@@ -307,11 +314,10 @@ class _SearchResultScreenState extends State<SearchResultScreen> with SingleTick
     );
   }
 
-  // Construit l'en-tête avec le rectangle bleu
   Widget _buildHeader(int durationDays) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 24.h),
+      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 24.h).add(EdgeInsets.only(top: MediaQuery.of(context).padding.top)), // Ajouter padding pour la barre de statut
       decoration: const BoxDecoration(
         color: Color(0xFF004852),
         borderRadius: BorderRadius.zero,
@@ -327,20 +333,18 @@ class _SearchResultScreenState extends State<SearchResultScreen> with SingleTick
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),
           ),
-          // Titre "SELECT YOUR VEHICLE" avec TextDecoration.underline
           Text(
             'SELECT YOUR VEHICLE',
             style: GoogleFonts.poppins(
               color: Colors.white,
               fontWeight: FontWeight.bold,
               fontSize: 32.sp,
-              decoration: TextDecoration.underline, // Soulignement avec TextDecoration
-              decorationColor: Colors.white, // Couleur de la ligne (blanche)
-              decorationThickness: 2, // Épaisseur de la ligne
+              decoration: TextDecoration.underline,
+              decorationColor: Colors.white,
+              decorationThickness: 2,
             ),
           ),
           SizedBox(height: 16.h),
-          // Rectangle blanc pour les informations de recherche
           Container(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
             decoration: BoxDecoration(
@@ -360,7 +364,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> with SingleTick
                           color: Colors.grey[600],
                           fontSize: 14.sp,
                         ),
-                        maxLines: 2, // Permet de passer à la ligne si le texte est trop long
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                       SizedBox(height: 4.h),
@@ -409,7 +413,6 @@ class _SearchResultScreenState extends State<SearchResultScreen> with SingleTick
     );
   }
 
-  // Construit le contenu principal (boutons de filtre et liste des véhicules)
   Widget _buildMainContent() {
     return Expanded(
       child: Padding(
@@ -600,6 +603,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> with SingleTick
                 },
               ),
             ),
+            SizedBox(height: MediaQuery.of(context).padding.bottom), // Ajouter padding pour la barre de navigation
           ],
         ),
       ),
@@ -680,170 +684,170 @@ class _SearchResultScreenState extends State<SearchResultScreen> with SingleTick
   }
 
   Widget _buildVehicleCard({
-  required String category,
-  required String name,
-  required String imageUrl,
-  required int doors,
-  required int passengers,
-  required int luggage,
-  required String transmission,
-  required String pricePerDay,
-  required String estimatedTotal,
-}) {
-  return Container(
-    width: double.infinity,
-    padding: EdgeInsets.all(16.w),
-    margin: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(12.r),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.grey.withOpacity(0.2),
-          blurRadius: 8.r,
-          offset: const Offset(0, 2),
-        ),
-      ],
-    ),
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          category,
-          style: GoogleFonts.poppins(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-            fontSize: 16.sp,
+    required String category,
+    required String name,
+    required String imageUrl,
+    required int doors,
+    required int passengers,
+    required int luggage,
+    required String transmission,
+    required String pricePerDay,
+    required String estimatedTotal,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(16.w),
+      margin: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            blurRadius: 8.r,
+            offset: const Offset(0, 2),
           ),
-          textAlign: TextAlign.center,
-        ),
-        SizedBox(height: 4.h),
-        Text(
-          name,
-          style: GoogleFonts.poppins(
-            color: Colors.grey.shade600,
-            fontWeight: FontWeight.normal,
-            fontSize: 14.sp,
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            category,
+            style: GoogleFonts.poppins(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+              fontSize: 16.sp,
+            ),
+            textAlign: TextAlign.center,
           ),
-          textAlign: TextAlign.center,
-        ),
-        SizedBox(height: 12.h),
-        Image.asset(
-          imageUrl,
-          width: 250.w,
-          height: 150.h,
-          fit: BoxFit.contain,
-          errorBuilder: (context, error, stackTrace) {
-            return Icon(Icons.directions_car, size: 120.w, color: Colors.black54);
-          },
-        ),
-        SizedBox(height: 12.h),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              'assets/icons/de2.png',
-              width: 16.w,
-              height: 16.h,
-              color: Colors.black54,
+          SizedBox(height: 4.h),
+          Text(
+            name,
+            style: GoogleFonts.poppins(
+              color: Colors.grey.shade600,
+              fontWeight: FontWeight.normal,
+              fontSize: 14.sp,
             ),
-            SizedBox(width: 4.w),
-            Text(
-              '$doors',
-              style: GoogleFonts.poppins(
-                color: Colors.black, // Changement de couleur en noir
-                fontSize: 14.sp,
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 12.h),
+          Image.asset(
+            imageUrl,
+            width: 250.w,
+            height: 150.h,
+            fit: BoxFit.contain,
+            errorBuilder: (context, error, stackTrace) {
+              return Icon(Icons.directions_car, size: 120.w, color: Colors.black54);
+            },
+          ),
+          SizedBox(height: 12.h),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                'assets/icons/de2.png',
+                width: 16.w,
+                height: 16.h,
+                color: Colors.black54,
               ),
-            ),
-            SizedBox(width: 12.w),
-            Image.asset(
-              'assets/icons/de3.png',
-              width: 16.w,
-              height: 16.h,
-              color: Colors.black54,
-            ),
-            SizedBox(width: 4.w),
-            Text(
-              '$passengers',
-              style: GoogleFonts.poppins(
-                color: Colors.black, // Changement de couleur en noir
-                fontSize: 14.sp,
-              ),
-            ),
-            SizedBox(width: 12.w),
-            Image.asset(
-              'assets/icons/de4.png',
-              width: 16.w,
-              height: 16.h,
-              color: Colors.black54,
-            ),
-            SizedBox(width: 4.w),
-            Text(
-              '$luggage',
-              style: GoogleFonts.poppins(
-                color: Colors.black, // Changement de couleur en noir
-                fontSize: 14.sp,
-              ),
-            ),
-            SizedBox(width: 12.w),
-            Image.asset(
-              'assets/icons/de1.png',
-              width: 16.w,
-              height: 16.h,
-              color: Colors.black54,
-            ),
-            SizedBox(width: 4.w),
-            Text(
-              transmission,
-              style: GoogleFonts.poppins(
-                color: Colors.black, // Changement de couleur en noir
-                fontSize: 14.sp,
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 12.h),
-        Divider(
-          color: Colors.grey.shade300,
-          thickness: 1.w,
-        ),
-        SizedBox(height: 12.h),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Best Price',
-              style: GoogleFonts.poppins(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontSize: 16.sp,
-              ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  pricePerDay,
-                  style: GoogleFonts.poppins(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16.sp,
-                  ),
+              SizedBox(width: 4.w),
+              Text(
+                '$doors',
+                style: GoogleFonts.poppins(
+                  color: Colors.black,
+                  fontSize: 14.sp,
                 ),
-                SizedBox(height: 4.h),
-                Text(
-                  estimatedTotal,
-                  style: GoogleFonts.poppins(
-                    color: Colors.black54,
-                    fontSize: 12.sp,
-                  ),
+              ),
+              SizedBox(width: 12.w),
+              Image.asset(
+                'assets/icons/de3.png',
+                width: 16.w,
+                height: 16.h,
+                color: Colors.black54,
+              ),
+              SizedBox(width: 4.w),
+              Text(
+                '$passengers',
+                style: GoogleFonts.poppins(
+                  color: Colors.black,
+                  fontSize: 14.sp,
                 ),
-              ],
-            ),
-          ],
-        ),
-      ],
-    ),
-  );
+              ),
+              SizedBox(width: 12.w),
+              Image.asset(
+                'assets/icons/de4.png',
+                width: 16.w,
+                height: 16.h,
+                color: Colors.black54,
+              ),
+              SizedBox(width: 4.w),
+              Text(
+                '$luggage',
+                style: GoogleFonts.poppins(
+                  color: Colors.black,
+                  fontSize: 14.sp,
+                ),
+              ),
+              SizedBox(width: 12.w),
+              Image.asset(
+                'assets/icons/de1.png',
+                width: 16.w,
+                height: 16.h,
+                color: Colors.black54,
+              ),
+              SizedBox(width: 4.w),
+              Text(
+                transmission,
+                style: GoogleFonts.poppins(
+                  color: Colors.black,
+                  fontSize: 14.sp,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 12.h),
+          Divider(
+            color: Colors.grey.shade300,
+            thickness: 1.w,
+          ),
+          SizedBox(height: 12.h),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Best Price',
+                style: GoogleFonts.poppins(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16.sp,
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    pricePerDay,
+                    style: GoogleFonts.poppins(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.sp,
+                    ),
+                  ),
+                  SizedBox(height: 4.h),
+                  Text(
+                    estimatedTotal,
+                    style: GoogleFonts.poppins(
+                      color: Colors.black54,
+                      fontSize: 12.sp,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }

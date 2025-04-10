@@ -8,7 +8,8 @@ import 'package:vahanar_front/screens/home/search_screen.dart';
 import 'package:vahanar_front/screens/home/map_screen.dart';
 import 'package:location/location.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:carousel_slider/carousel_slider.dart'; // Import the carousel_slider package
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter/services.dart';
 
 class CarouselAnimation extends StatefulWidget {
   final List<Widget> items;
@@ -29,11 +30,11 @@ class _CarouselAnimationState extends State<CarouselAnimation> {
       children: [
         CarouselSlider(
           options: CarouselOptions(
-            height: 180.h, // Adjusted to match the reward cards section height
-            autoPlay: false, // Disable auto-play for manual control
-            viewportFraction: 0.85, // Slightly increased to show more of the next card
+            height: 180.h,
+            autoPlay: false,
+            viewportFraction: 0.85,
             enlargeCenterPage: true,
-            scrollPhysics: const BouncingScrollPhysics(), // Makes scrolling snappier
+            scrollPhysics: const BouncingScrollPhysics(),
             scrollDirection: Axis.horizontal,
             pageSnapping: true,
             onPageChanged: (index, reason) {
@@ -152,6 +153,30 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    // Définir la couleur de la barre de statut et de la barre de navigation
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: const Color(0xFF004852),
+      statusBarIconBrightness: Brightness.light,
+      systemNavigationBarColor: AppConstants.backgroundColor,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ));
+  }
+
+  @override
+  void dispose() {
+    // Restaurer les paramètres par défaut lors de la sortie de l'écran
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ));
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     List<Widget> recentSearchWidgets = displayedRecentSearches.map((item) {
       return _buildRecentSearchCard(item['title']!, item['date']!);
@@ -159,7 +184,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final screenWidth = MediaQuery.of(context).size.width;
 
-    // List of reward cards for the carousel
     List<Widget> rewardCards = [
       _buildRewardCard(
         imagePath: 'assets/animations/earn1.png',
@@ -178,13 +202,15 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: AppConstants.backgroundColor,
       body: SafeArea(
+        top: false,
+        bottom: false,
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
                 width: double.infinity,
-                padding: EdgeInsets.all(15.w),
+                padding: EdgeInsets.all(15.w).add(EdgeInsets.only(top: MediaQuery.of(context).padding.top)),
                 decoration: const BoxDecoration(
                   color: Color(0xFF004852),
                   borderRadius: BorderRadius.zero,
@@ -377,7 +403,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 20.h),
+                    SizedBox(height: 20.h + MediaQuery.of(context).padding.bottom),
                   ],
                 ),
               ),
@@ -385,7 +411,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: const BottomNavBar(selectedIndex: 1),
+      bottomNavigationBar: const BottomNavBar(selectedIndex: 1), // Ton BottomNavBar reste inchangé
     );
   }
 
@@ -446,8 +472,8 @@ class _HomeScreenState extends State<HomeScreen> {
     required double screenWidth,
   }) {
     return Container(
-      width: screenWidth * 0.75, // Keep the width compact
-      height: 160.h, // Keep the height compact
+      width: screenWidth * 0.75,
+      height: 160.h,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12.r),
@@ -462,9 +488,8 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image in the top half
           Container(
-            height: 80.h, // Reduced image height to fit better
+            height: 80.h,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(12.r),
@@ -472,11 +497,10 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               image: DecorationImage(
                 image: AssetImage(imagePath),
-                fit: BoxFit.cover, // Ensure the image scales properly
+                fit: BoxFit.cover,
               ),
             ),
           ),
-          // Text in the bottom half
           Padding(
             padding: EdgeInsets.all(10.w),
             child: Column(
@@ -510,5 +534,5 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   int _currentCarouselIndex = 0;
-  int _currentRewardCarouselIndex = 0; // Added for reward cards carousel
+  int _currentRewardCarouselIndex = 0;
 }

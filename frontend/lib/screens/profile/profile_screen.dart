@@ -6,10 +6,40 @@ import 'package:vahanar_front/providers/auth_provider.dart';
 import 'package:vahanar_front/widgets/bottom_nav_bar.dart';
 import 'package:vahanar_front/screens/profile/edit_profile_screen.dart';
 import 'package:vahanar_front/screens/profile/driver_license_camera_screen.dart';
-import 'package:url_launcher/url_launcher.dart'; // Ajout pour launchUrl
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/services.dart'; // Ajout pour SystemChrome
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget { // Changé en StatefulWidget
   const ProfileScreen({super.key});
+
+  @override
+  _ProfileScreenState createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> { // Création de l'état
+  @override
+  void initState() {
+    super.initState();
+    // Définir la couleur de la barre de statut et de la barre de navigation
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: const Color(0xFF2A4D50), // Couleur de l'en-tête
+      statusBarIconBrightness: Brightness.light, // Icônes blanches pour contraste
+      systemNavigationBarColor: Colors.white, // Couleur de l'arrière-plan du Scaffold
+      systemNavigationBarIconBrightness: Brightness.dark, // Icônes noires pour contraste
+    ));
+  }
+
+  @override
+  void dispose() {
+    // Restaurer les paramètres par défaut lors de la sortie de l'écran
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ));
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +49,8 @@ class ProfileScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
+        top: false, // Désactiver SafeArea en haut
+        bottom: false, // Désactiver SafeArea en bas
         child: authProvider.isLoading
             ? const Center(child: CircularProgressIndicator())
             : Column(
@@ -113,10 +145,11 @@ class ProfileScreen extends StatelessWidget {
     final authProvider = Provider.of<AuthProvider>(context);
     final user = authProvider.user;
     final fullName = user != null ? '${user.firstName} ${user.lastName}' : 'John Doe';
-    final profileImageUrl = user?.profileImageUrl; // Récupérer l'URL de l'image depuis l'utilisateur
+    final profileImageUrl = user?.profileImageUrl;
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 16.h),
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 16.h)
+          .add(EdgeInsets.only(top: MediaQuery.of(context).padding.top)), // Ajouter padding pour la barre de statut
       color: const Color(0xFF2A4D50),
       child: Column(
         children: [
