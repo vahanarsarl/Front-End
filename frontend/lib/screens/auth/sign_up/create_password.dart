@@ -123,19 +123,19 @@ class _CreatePasswordScreenState extends State<CreatePasswordScreen> {
                   Expanded(
                     child: Text.rich(
                       TextSpan(
-                        text: "By tapping on Checking this button, you agree to the ",
+                        text: "By tapping on Checking this button, you agree to the VAHANAR ",
                         style: GoogleFonts.poppins(
                           color: Colors.grey,
                           fontWeight: FontWeight.w400,
-                          fontSize: 14.sp,
+                          fontSize: 12.sp,
                         ),
                         children: [
                           TextSpan(
-                            text: "Mahana Terms of Service",
+                            text: "Terms of Service",
                             style: GoogleFonts.poppins(
                               color: Colors.blue,
                               fontWeight: FontWeight.bold,
-                              fontSize: 14.sp,
+                              fontSize: 12.sp,
                             ),
                           ),
                           const TextSpan(text: " and "),
@@ -144,7 +144,7 @@ class _CreatePasswordScreenState extends State<CreatePasswordScreen> {
                             style: GoogleFonts.poppins(
                               color: Colors.blue,
                               fontWeight: FontWeight.bold,
-                              fontSize: 14.sp,
+                              fontSize: 12.sp,
                             ),
                           ),
                           const TextSpan(text: "."),
@@ -191,7 +191,7 @@ class _CreatePasswordScreenState extends State<CreatePasswordScreen> {
         hintStyle: GoogleFonts.poppins(
           fontWeight: FontWeight.w400,
           color: Colors.grey,
-          fontSize: 16.sp,
+          fontSize: 18.sp,
         ),
         filled: true,
         fillColor: Colors.white,

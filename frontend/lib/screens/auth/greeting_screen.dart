@@ -146,7 +146,7 @@ class _GreetingScreenState extends State<GreetingScreen> {
                             },
                             color: Colors.white, // Changer le background en blanc
                             borderSide: BorderSide(
-                              color: const Color(0xFF004852), // Bordure bleue du projet
+                              color: const Color.from(alpha: 0.700, red: 0, green: 0.286, blue: 0.322), // Bordure bleue du projet
                               width: 2.w,
                             ),
                             borderRadius: BorderRadius.circular(buttonCornerRadius.r),

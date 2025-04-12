@@ -205,32 +205,32 @@ class _ProfileScreenState extends State<ProfileScreen> { // Création de l'état
                         color: Colors.white,
                       ),
                     ),
-                    SizedBox(height: 4.h),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const EditProfileScreen()),
-                        );
-                      },
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.edit,
-                            color: Colors.grey,
-                            size: 18.w,
-                          ),
-                          SizedBox(width: 4.w),
-                          Text(
-                            'Edit Profile',
-                            style: GoogleFonts.poppins(
-                              fontSize: 18.sp,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    //SizedBox(height: 4.h),
+                    //GestureDetector(
+                     // onTap: () {
+                       // Navigator.push(
+                         // context,
+                         // MaterialPageRoute(builder: (context) => const EditProfileScreen()),
+                       // );
+                      //},
+                     // child: Row(
+                        //children: [
+                          //Icon(
+                            //Icons.edit,
+                            //color: Colors.grey,
+                            //size: 18.w,
+                          //),
+                          //SizedBox(width: 4.w),
+                          //Text(
+                            //'Edit Profile',
+                           // style: GoogleFonts.poppins(
+                             // fontSize: 18.sp,
+                             // color: Colors.grey,
+                            //),
+                          //),
+                        //],
+                      //),
+                    //),
                   ],
                 ),
               ),

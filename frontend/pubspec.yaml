@@ -64,6 +64,7 @@ flutter:
     - assets/icons/search.png
     - assets/icons/search_b.png
     - assets/icons/valide.png
+    - assets/icons/not.png
     - assets/animations/earn.png
     - assets/animations/earn1.png
     - assets/icons/eclipse1.png

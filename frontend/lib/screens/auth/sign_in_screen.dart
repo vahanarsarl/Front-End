@@ -49,10 +49,10 @@ class _SignInScreenState extends State<SignInScreen> {
                           color: const Color(0xFF004852),
                         ),
                       ),
-                      IconButton(
-                        icon: Icon(Icons.close, color: Colors.black, size: 24.w),
-                        onPressed: () => Navigator.pop(context),
-                      ),
+                      //IconButton(
+                       // icon: Icon(Icons.close, color: Colors.black, size: 24.w),
+                        //onPressed: () => Navigator.pop(context),
+                     // ),
                     ],
                   ),
                 ],
@@ -80,7 +80,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       labelText: "Username",
                       labelStyle: GoogleFonts.poppins(
                         color: Colors.grey,
-                        fontSize: 16.sp,
+                        fontSize: 18.sp,
                       ),
                       prefixIcon: Icon(Icons.person, color: Colors.grey, size: 20.w),
                       border: OutlineInputBorder(
@@ -101,7 +101,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       labelText: "Password",
                       labelStyle: GoogleFonts.poppins(
                         color: Colors.grey,
-                        fontSize: 16.sp,
+                        fontSize: 18.sp,
                       ),
                       prefixIcon: Icon(Icons.lock, color: Colors.grey, size: 20.w),
                       border: OutlineInputBorder(
@@ -136,7 +136,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "Enable face ID",
+                        "keep me logged IN ",
                         style: GoogleFonts.poppins(
                           color: Colors.black87,
                           fontSize: 14.sp,
@@ -149,8 +149,8 @@ class _SignInScreenState extends State<SignInScreen> {
                             isFaceIdEnabled = value;
                           });
                         },
-                        activeTrackColor: Colors.teal[100],
-                        activeColor: const Color(0xFF2A4D50),
+                        activeTrackColor: const Color(0xFF2A4D50),
+                        activeColor: const Color.fromARGB(255, 255, 255, 255),
                         inactiveThumbColor: Colors.white,
                         inactiveTrackColor: Colors.grey[300],
                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap, // Réduire la taille du tap

@@ -4,8 +4,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:vahanar_front/constants.dart';
 import 'package:vahanar_front/widgets/bottom_nav_bar.dart';
 import 'package:vahanar_front/screens/home/search_result_screen.dart';
+import 'package:vahanar_front/screens/home/map_screen.dart';
 import 'package:vahanar_front/widgets/custom_button.dart';
-import 'package:flutter/services.dart'; // Ajout pour SystemChrome
+import 'package:flutter/services.dart';
+import 'package:flutter/services.dart' show FilteringTextInputFormatter;
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -20,8 +22,8 @@ class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _pickupDateController = TextEditingController(text: 'Mar 26 | 23:50 PM');
   final TextEditingController _dropoffDateController = TextEditingController(text: 'Mar 29 | 23:50 PM');
   final TextEditingController _discountCodeController = TextEditingController();
+  final TextEditingController _ageController = TextEditingController();
 
-  String _selectedAge = '25+';
   String _selectedCountry = 'Morocco';
   DateTime? _pickupDateTime;
   DateTime? _dropoffDateTime;
@@ -61,12 +63,11 @@ class _SearchScreenState extends State<SearchScreen> {
     _pickupLocationController.addListener(() => _filterLocations(_pickupLocationController.text, true));
     _dropoffLocationController.addListener(() => _filterLocations(_dropoffLocationController.text, false));
 
-    // Définir la couleur de la barre de statut et de la barre de navigation
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-      statusBarColor: const Color(0xFF004852), // Couleur de l'en-tête
-      statusBarIconBrightness: Brightness.light, // Icônes blanches pour contraste
-      systemNavigationBarColor: Colors.white, // Couleur de l'arrière-plan du Scaffold
-      systemNavigationBarIconBrightness: Brightness.dark, // Icônes noires pour contraste
+      statusBarColor: const Color(0xFF004852),
+      statusBarIconBrightness: Brightness.light,
+      systemNavigationBarColor: Colors.white,
+      systemNavigationBarIconBrightness: Brightness.dark,
     ));
   }
 
@@ -77,8 +78,8 @@ class _SearchScreenState extends State<SearchScreen> {
     _pickupDateController.dispose();
     _dropoffDateController.dispose();
     _discountCodeController.dispose();
+    _ageController.dispose();
 
-    // Restaurer les paramètres par défaut lors de la sortie de l'écran
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.dark,
@@ -159,6 +160,23 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
+  Future<void> _navigateToMapScreen(BuildContext context, bool isPickup) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const MapScreen()),
+    );
+
+    if (result != null && result is String) {
+      setState(() {
+        if (isPickup) {
+          _pickupLocationController.text = result;
+        } else {
+          _dropoffLocationController.text = result;
+        }
+      });
+    }
+  }
+
   String _formatDateTime(DateTime dateTime) {
     const monthAbbreviations = [
       'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
@@ -177,13 +195,13 @@ class _SearchScreenState extends State<SearchScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        top: false, // Désactiver SafeArea en haut
-        bottom: false, // Désactiver SafeArea en bas
+        top: false,
+        bottom: false,
         child: Column(
           children: [
             Container(
               width: double.infinity,
-              padding: EdgeInsets.all(15.w).add(EdgeInsets.only(top: MediaQuery.of(context).padding.top)), // Ajouter padding pour la barre de statut
+              padding: EdgeInsets.all(15.w).add(EdgeInsets.only(top: MediaQuery.of(context).padding.top)),
               color: const Color(0xFF004852),
               child: Row(
                 children: [
@@ -223,6 +241,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         controller: _pickupLocationController,
                         label: 'Pick-up Location',
                         isPickup: true,
+                        onIconTap: () => _navigateToMapScreen(context, true),
                       ),
                       SizedBox(height: 16.h),
                       _buildTextField(
@@ -230,6 +249,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         controller: _dropoffLocationController,
                         label: 'Drop-off Location',
                         isPickup: false,
+                        onIconTap: () => _navigateToMapScreen(context, false),
                       ),
                       SizedBox(height: 16.h),
                       Container(
@@ -271,11 +291,9 @@ class _SearchScreenState extends State<SearchScreen> {
                         children: [
                           SizedBox(
                             width: 0.35.sw,
-                            child: _buildDropdownField(
+                            child: _buildAgeTextField(
                               label: 'Age',
-                              value: _selectedAge,
-                              items: const ['18-24', '25+', '30+', '40+'],
-                              onChanged: (newValue) => setState(() => _selectedAge = newValue ?? '25+'),
+                              controller: _ageController,
                             ),
                           ),
                           SizedBox(width: 10.w),
@@ -306,33 +324,41 @@ class _SearchScreenState extends State<SearchScreen> {
                         child: Row(
                           children: [
                             Image.asset('assets/icons/disc.png', width: 37.w, height: 32.h),
-                            SizedBox(width: 16.w),
+                            SizedBox(width: 10.w), // Ajout d'un espacement pour aligner avec les autres sections
                             Expanded(
                               child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start, // Alignement à gauche
                                 children: [
                                   Text(
                                     'DISCOUNT CODES',
                                     style: GoogleFonts.poppins(
-                                      color: Colors.black,
+                                      color: Colors.black, // Déjà en noir
                                       fontSize: 14.sp,
-                                      fontWeight: FontWeight.bold,
+                                      fontWeight: FontWeight.bold, // Déjà en gras
                                     ),
                                   ),
                                   SizedBox(height: 2.h),
                                   TextField(
                                     controller: _discountCodeController,
-                                    style: GoogleFonts.poppins(color: Colors.black, fontSize: 14.sp),
+                                    style: GoogleFonts.poppins(
+                                      color: Colors.black,
+                                      fontSize: 14.sp,
+                                      fontWeight: FontWeight.normal, // Valeur en light
+                                    ),
                                     decoration: InputDecoration(
                                       hintText: 'YOURCODE',
-                                      hintStyle: GoogleFonts.poppins(color: Colors.grey, fontSize: 14.sp),
+                                      hintStyle: GoogleFonts.poppins(
+                                        color: Colors.grey,
+                                        fontSize: 14.sp,
+                                        fontWeight: FontWeight.normal, // Hint en light
+                                      ),
                                       border: InputBorder.none,
                                     ),
+                                    textAlign: TextAlign.start, // Alignement à gauche
                                   ),
                                 ],
                               ),
                             ),
-                            Image.asset('assets/icons/edit.png', width: 35.w, height: 30.h),
                           ],
                         ),
                       ),
@@ -361,7 +387,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         height: 40.h,
                         isLoading: false,
                       ),
-                      SizedBox(height: 20.h + MediaQuery.of(context).padding.bottom), // Ajouter padding pour la barre de navigation
+                      SizedBox(height: 20.h + MediaQuery.of(context).padding.bottom),
                     ],
                   ),
                 ),
@@ -379,6 +405,7 @@ class _SearchScreenState extends State<SearchScreen> {
     required TextEditingController controller,
     required String label,
     required bool isPickup,
+    required VoidCallback onIconTap,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -393,7 +420,10 @@ class _SearchScreenState extends State<SearchScreen> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Icon(icon, color: Colors.grey[700], size: 30.w),
+              GestureDetector(
+                onTap: onIconTap,
+                child: Icon(icon, color: Colors.grey[700], size: 30.w),
+              ),
               SizedBox(width: 10.w),
               Expanded(
                 child: Column(
@@ -401,7 +431,11 @@ class _SearchScreenState extends State<SearchScreen> {
                   children: [
                     Text(
                       label,
-                      style: GoogleFonts.poppins(color: Colors.grey[600], fontSize: 14.sp),
+                      style: GoogleFonts.poppins(
+                        color: Colors.black, // Titre en noir
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.bold, // Titre en gras
+                      ),
                     ),
                     SizedBox(height: 2.h),
                     TextField(
@@ -409,7 +443,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       style: GoogleFonts.poppins(
                         color: Colors.black,
                         fontSize: 14.sp,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.normal, // Texte en light (déjà correct)
                       ),
                       decoration: const InputDecoration(border: InputBorder.none),
                       onTap: () {
@@ -449,7 +483,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     style: GoogleFonts.poppins(
                       color: Colors.black,
                       fontSize: 14.sp,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.normal, // Texte en light (déjà correct)
                     ),
                   ),
                   onTap: () {
@@ -490,7 +524,11 @@ class _SearchScreenState extends State<SearchScreen> {
               children: [
                 Text(
                   label,
-                  style: GoogleFonts.poppins(color: Colors.grey[600], fontSize: 14.sp),
+                  style: GoogleFonts.poppins(
+                    color: Colors.black, // Titre en noir
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.bold, // Titre en gras
+                  ),
                 ),
                 SizedBox(height: 2.h),
                 Text(
@@ -498,7 +536,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   style: GoogleFonts.poppins(
                     color: Colors.black,
                     fontSize: 14.sp,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.normal, // Valeur en light
                   ),
                 ),
               ],
@@ -509,11 +547,9 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  Widget _buildDropdownField({
+  Widget _buildAgeTextField({
     required String label,
-    required String value,
-    required List<String> items,
-    required ValueChanged<String?> onChanged,
+    required TextEditingController controller,
   }) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 1.h),
@@ -531,28 +567,27 @@ class _SearchScreenState extends State<SearchScreen> {
               children: [
                 Text(
                   label,
-                  style: GoogleFonts.poppins(color: Colors.grey[600], fontSize: 14.sp),
+                  style: GoogleFonts.poppins(
+                    color: Colors.black, // Titre en noir
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.bold, // Titre en gras
+                  ),
                 ),
                 SizedBox(height: 2.h),
-                DropdownButton<String>(
-                  value: value,
-                  isExpanded: true,
-                  underline: const SizedBox(),
-                  icon: Icon(Icons.arrow_drop_down, color: Colors.black54, size: 24.w),
-                  items: items.map((item) {
-                    return DropdownMenuItem<String>(
-                      value: item,
-                      child: Text(
-                        item,
-                        style: GoogleFonts.poppins(
-                          color: Colors.black,
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                  onChanged: onChanged,
+                TextField(
+                  controller: controller,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  style: GoogleFonts.poppins(
+                    color: Colors.black,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.normal, // Valeur en light
+                  ),
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    hintText: 'Enter age',
+                    hintStyle: TextStyle(color: Colors.grey),
+                  ),
                 ),
               ],
             ),
@@ -584,7 +619,11 @@ class _SearchScreenState extends State<SearchScreen> {
               children: [
                 Text(
                   label,
-                  style: GoogleFonts.poppins(color: Colors.grey[600], fontSize: 14.sp),
+                  style: GoogleFonts.poppins(
+                    color: Colors.black, // Titre en noir
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.bold, // Titre en gras
+                  ),
                 ),
                 SizedBox(height: 2.h),
                 DropdownButton<String>(
@@ -604,7 +643,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             style: GoogleFonts.poppins(
                               color: Colors.black,
                               fontSize: 14.sp,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.normal, // Valeur en light
                             ),
                           ),
                         ],

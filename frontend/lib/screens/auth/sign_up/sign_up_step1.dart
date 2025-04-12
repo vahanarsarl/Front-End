@@ -208,7 +208,7 @@ class _SignUpStep1ScreenState extends State<SignUpStep1Screen> {
                   hintStyle: GoogleFonts.poppins(
                     fontWeight: FontWeight.w400,
                     color: Colors.grey,
-                    fontSize: 16.sp,
+                    fontSize: 18.sp,
                   ),
                 ),
                 SizedBox(height: 32.h),
@@ -220,7 +220,7 @@ class _SignUpStep1ScreenState extends State<SignUpStep1Screen> {
                   hintStyle: GoogleFonts.poppins(
                     fontWeight: FontWeight.w400,
                     color: Colors.grey,
-                    fontSize: 16.sp,
+                    fontSize: 18.sp,
                   ),
                 ),
                 SizedBox(height: 32.h),
@@ -233,7 +233,7 @@ class _SignUpStep1ScreenState extends State<SignUpStep1Screen> {
                   hintStyle: GoogleFonts.poppins(
                     fontWeight: FontWeight.w400,
                     color: Colors.grey,
-                    fontSize: 16.sp,
+                    fontSize: 18.sp,
                   ),
                 ),
                 SizedBox(height: 32.h),
@@ -246,7 +246,7 @@ class _SignUpStep1ScreenState extends State<SignUpStep1Screen> {
                   hintStyle: GoogleFonts.poppins(
                     fontWeight: FontWeight.w400,
                     color: Colors.grey,
-                    fontSize: 16.sp,
+                    fontSize: 18.sp,
                   ),
                 ),
                 SizedBox(height: 0.15.sh),

@@ -75,8 +75,6 @@ class _BookingConfirmationScreenState extends State<BookingConfirmationScreen> w
                   child: Center(
                     child: Image.asset(
                       'assets/icons/valide.png',
-                      width: 40.w,
-                      height: 40.h,
                     ),
                   ),
                 ),

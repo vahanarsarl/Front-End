@@ -77,7 +77,11 @@ class _FilterScreenState extends State<FilterScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
-                    icon: Icon(Icons.arrow_back, color: Colors.black, size: 24.w),
+                    icon: Icon(
+                      Icons.arrow_back,
+                      color: Colors.black,
+                      size: 24.w,
+                    ),
                     onPressed: () {
                       Navigator.pop(context); // Retour à SearchResultScreen
                     },
@@ -147,16 +151,21 @@ class _FilterScreenState extends State<FilterScreen> {
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
-                        children: vehicleTypes.map((type) {
-                          return Padding(
-                            padding: EdgeInsets.only(right: 8.w),
-                            child: _buildFilterButton(type, selectedVehicleType, (value) {
-                              setState(() {
-                                selectedVehicleType = value;
-                              });
-                            }),
-                          );
-                        }).toList(),
+                        children:
+                            vehicleTypes.map((type) {
+                              return Padding(
+                                padding: EdgeInsets.only(right: 8.w),
+                                child: _buildFilterButton(
+                                  type,
+                                  selectedVehicleType,
+                                  (value) {
+                                    setState(() {
+                                      selectedVehicleType = value;
+                                    });
+                                  },
+                                ),
+                              );
+                            }).toList(),
                       ),
                     ),
                     SizedBox(height: 16.h),
@@ -173,21 +182,22 @@ class _FilterScreenState extends State<FilterScreen> {
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
-                        children: features.map((feature) {
-                          return Padding(
-                            padding: EdgeInsets.only(right: 8.w),
-                            child: _buildFilterButton(
-                              feature['label'],
-                              selectedFeature,
-                              (value) {
-                                setState(() {
-                                  selectedFeature = value;
-                                });
-                              },
-                              icon: feature['icon'],
-                            ),
-                          );
-                        }).toList(),
+                        children:
+                            features.map((feature) {
+                              return Padding(
+                                padding: EdgeInsets.only(right: 8.w),
+                                child: _buildFilterButton(
+                                  feature['label'],
+                                  selectedFeature,
+                                  (value) {
+                                    setState(() {
+                                      selectedFeature = value;
+                                    });
+                                  },
+                                  icon: feature['icon'],
+                                ),
+                              );
+                            }).toList(),
                       ),
                     ),
                     SizedBox(height: 16.h),
@@ -265,38 +275,55 @@ class _FilterScreenState extends State<FilterScreen> {
                         }),
                       ],
                     ),
-                    SizedBox(height: 24.h),
-                    // Bouton "Show offers"
-                    Center(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Renvoyer les sélections à SearchResultScreen
-                          Navigator.pop(context, {
-                            'sortBy': selectedSortBy,
-                            'vehicleType': selectedVehicleType,
-                            'feature': selectedFeature,
-                            'seats': selectedSeats,
-                            'driverAge': selectedDriverAge,
-                          });
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF004852),
-                          padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 12.h),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                        ),
-                        child: Text(
-                          'Show offers',
-                          style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16.sp,
-                          ),
-                        ),
-                      ),
-                    ),
+                    // Ajout d'un espace en bas pour éviter que le contenu soit caché par le bouton fixe
+                    SizedBox(height: 80.h),
                   ],
+                ),
+              ),
+            ),
+            // Bouton "Show offers" en position fixe en bas
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    spreadRadius: 1,
+                    blurRadius: 5,
+                    offset: const Offset(0, -3),
+                  ),
+                ],
+              ),
+              child: ElevatedButton(
+                onPressed: () {
+                  // Renvoyer les sélections à SearchResultScreen
+                  Navigator.pop(context, {
+                    'sortBy': selectedSortBy,
+                    'vehicleType': selectedVehicleType,
+                    'feature': selectedFeature,
+                    'seats': selectedSeats,
+                    'driverAge': selectedDriverAge,
+                  });
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF004852),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 32.w,
+                    vertical: 12.h,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                ),
+                child: Text(
+                  'Show offers',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16.sp,
+                  ),
                 ),
               ),
             ),
@@ -306,7 +333,12 @@ class _FilterScreenState extends State<FilterScreen> {
     );
   }
 
-  Widget _buildFilterButton(String label, String selectedValue, Function(String) onTap, {IconData? icon}) {
+  Widget _buildFilterButton(
+    String label,
+    String selectedValue,
+    Function(String) onTap, {
+    IconData? icon,
+  }) {
     bool isSelected = label == selectedValue;
     return ButtonAnimation(
       isSelected: isSelected,

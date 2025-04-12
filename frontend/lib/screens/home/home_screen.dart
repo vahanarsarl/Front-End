@@ -5,9 +5,7 @@ import 'package:vahanar_front/constants.dart';
 import 'package:vahanar_front/widgets/custom_button.dart';
 import 'package:vahanar_front/widgets/bottom_nav_bar.dart';
 import 'package:vahanar_front/screens/home/search_screen.dart';
-import 'package:vahanar_front/screens/home/map_screen.dart';
-import 'package:location/location.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:vahanar_front/screens/home/notifications_screen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/services.dart';
 
@@ -89,73 +87,9 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<bool> _checkAndRequestLocationPermission() async {
-    final location = Location();
-    bool serviceEnabled;
-
-    serviceEnabled = await location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
-      if (!serviceEnabled) {
-        return false;
-      }
-    }
-
-    final permissionStatus = await Permission.location.status;
-    if (!permissionStatus.isGranted) {
-      final newStatus = await Permission.location.request();
-      if (!newStatus.isGranted) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  Future<void> _showLocationPermissionDialog(BuildContext context) async {
-    final hasPermission = await _checkAndRequestLocationPermission();
-    if (!hasPermission) {
-      if (mounted) {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text('Location Permission Required', style: TextStyle(fontSize: 18.sp)),
-            content: Text('Please enable location services to find nearby agencies.', style: TextStyle(fontSize: 14.sp)),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('Cancel', style: TextStyle(fontSize: 14.sp)),
-              ),
-              TextButton(
-                onPressed: () async {
-                  Navigator.pop(context);
-                  await _checkAndRequestLocationPermission();
-                  if (await Permission.location.status.isGranted) {
-                    _navigateToMapScreen(context);
-                  }
-                },
-                child: Text('Enable', style: TextStyle(fontSize: 14.sp)),
-              ),
-            ],
-          ),
-        );
-      }
-    } else {
-      _navigateToMapScreen(context);
-    }
-  }
-
-  void _navigateToMapScreen(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const MapScreen()),
-    );
-  }
-
   @override
   void initState() {
     super.initState();
-    // Définir la couleur de la barre de statut et de la barre de navigation
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       statusBarColor: const Color(0xFF004852),
       statusBarIconBrightness: Brightness.light,
@@ -166,7 +100,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
-    // Restaurer les paramètres par défaut lors de la sortie de l'écran
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.dark,
@@ -230,8 +163,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     IconButton(
-                      icon: Image.asset('assets/icons/notif.png'),
-                      onPressed: () {},
+                      icon: Image.asset('assets/icons/not.png'),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const NotificationsScreen()),
+                        );
+                      },
                       tooltip: 'Notifications',
                     ),
                   ],
@@ -256,7 +194,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       duration: const Duration(milliseconds: 500),
                       child: GestureDetector(
                         onTap: () {
-                          _showLocationPermissionDialog(context);
+                          _navigateToSearchScreen(context);
                         },
                         child: Container(
                           width: double.infinity,
@@ -305,7 +243,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     SizedBox(height: 10.h),
                     SizedBox(
-                      height: 200.h,
+                      height: 140.h,
                       child: PageView(
                         scrollDirection: Axis.horizontal,
                         onPageChanged: (index) {
@@ -370,39 +308,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 20.h),
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 16.w),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12.r),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.2),
-                              blurRadius: 8.r,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Icon(Icons.help_outline, color: Colors.black, size: 24.w),
-                            Text(
-                              'Need Help?',
-                              style: GoogleFonts.poppins(
-                                fontSize: 16.sp,
-                                color: Colors.black,
-                              ),
-                            ),
-                            Icon(Icons.arrow_forward, color: Colors.black, size: 24.w),
-                          ],
-                        ),
-                      ),
-                    ),
                     SizedBox(height: 20.h + MediaQuery.of(context).padding.bottom),
                   ],
                 ),
@@ -411,7 +316,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: const BottomNavBar(selectedIndex: 1), // Ton BottomNavBar reste inchangé
+      bottomNavigationBar: const BottomNavBar(selectedIndex: 1),
     );
   }
 
@@ -440,7 +345,7 @@ class _HomeScreenState extends State<HomeScreen> {
               color: Colors.black,
             ),
           ),
-          SizedBox(height: 5.h),
+          SizedBox(height: 2.h),
           Text(
             date,
             style: GoogleFonts.poppins(
@@ -448,7 +353,6 @@ class _HomeScreenState extends State<HomeScreen> {
               color: Colors.grey,
             ),
           ),
-          SizedBox(height: 10.h),
           CustomButton(
             text: 'Continue Reserving',
             onPressed: () {},

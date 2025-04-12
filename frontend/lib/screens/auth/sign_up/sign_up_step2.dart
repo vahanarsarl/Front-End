@@ -39,13 +39,13 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
               SizedBox(height: 20.h),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.arrow_back, color: AppConstants.textColor, size: 24.w),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                  SizedBox(width: 16.w),
-                ],
+                //children: [
+                  //IconButton(
+                   // icon: Icon(Icons.arrow_back, color: AppConstants.textColor, size: 24.w),
+                   // onPressed: () => Navigator.pop(context),
+                  //),
+                 // SizedBox(width: 16.w),
+                //],
               ),
               SizedBox(height: 20.h),
               Text(
@@ -66,7 +66,7 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
                   ),
                   children: [
                     TextSpan(
-                      text: "+212 *  ** ** **",
+                      text: "+212 7  ** ** 99",
                       style: GoogleFonts.poppins(
                         color: AppConstants.primaryColor,
                         fontWeight: FontWeight.bold,
